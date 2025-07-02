@@ -9,12 +9,24 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: process.env.NODE_ENV === 'production' 
+      ? process.env.FRONTEND_URL 
+      : "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
-app.use(cors());
+// CORS configuration
+if (process.env.NODE_ENV === 'production') {
+  app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+  }));
+} else {
+  app.use(cors());
+}
+
 app.use(express.json());
 
 // Socket.io middleware to make io available in routes
