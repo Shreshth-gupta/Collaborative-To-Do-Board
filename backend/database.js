@@ -2,16 +2,15 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   max: 10
 });
 
 const initDB = async () => {
   try {
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -74,7 +73,8 @@ const initDB = async () => {
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
-    console.log('Make sure PostgreSQL is running and credentials in .env are correct');
+    console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+    console.log('Make sure DATABASE_URL environment variable is set correctly');
   }
 };
 
