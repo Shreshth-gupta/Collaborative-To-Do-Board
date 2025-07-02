@@ -1,0 +1,67 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const { initDB } = require('./database');
+require('dotenv').config();
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+
+app.use(cors());
+app.use(express.json());
+
+// Socket.io middleware to make io available in routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/activity', require('./routes/activity'));
+app.use('/api/users', require('./routes/users'));
+
+// Socket.IO for real-time updates
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+  
+  socket.on('join-board', () => {
+    socket.join('board');
+  });
+  
+  socket.on('task-updated', (data) => {
+    socket.to('board').emit('task-updated', data);
+  });
+  
+  socket.on('task-created', (data) => {
+    socket.to('board').emit('task-created', data);
+  });
+  
+  socket.on('task-deleted', (data) => {
+    socket.to('board').emit('task-deleted', data);
+  });
+  
+  socket.on('activity-logged', (data) => {
+    socket.to('board').emit('activity-logged', data);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+
+initDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+});
