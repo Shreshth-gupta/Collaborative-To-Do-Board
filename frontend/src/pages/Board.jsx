@@ -20,10 +20,10 @@ const Board = ({ user, onLogout }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    loadData();
-    
-    // Initialize socket connection with retry logic
-    const initializeSocket = () => {
+    const initializeApp = async () => {
+      await loadData();
+      
+      // Initialize socket connection with retry logic
       try {
         const socketConnection = socketService.connect();
         setSocket(socketConnection);
@@ -67,14 +67,13 @@ const Board = ({ user, onLogout }) => {
       }
     };
     
-    const cleanup = initializeSocket();
+    initializeApp();
     
     return () => {
-      if (cleanup) cleanup();
       socketService.disconnect();
       setSocket(null);
     };
-  }, []);
+  }, [showInfo]); // Added showInfo to dependencies
 
   const loadData = async () => {
     try {
