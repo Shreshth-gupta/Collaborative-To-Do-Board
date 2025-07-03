@@ -1,15 +1,38 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Parse DATABASE_URL for direct connection
+const parseConnectionString = (url) => {
+  if (!url) return {};
+  const match = url.match(/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
+  if (!match) return {};
+  return {
+    user: match[1],
+    password: match[2],
+    host: match[3],
+    port: parseInt(match[4]),
+    database: match[5]
+  };
+};
+
+const dbConfig = process.env.DATABASE_URL 
+  ? parseConnectionString(process.env.DATABASE_URL)
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME || 'postgres',
+      port: parseInt(process.env.DB_PORT) || 5432
+    };
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  ...dbConfig,
   ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
   } : false,
-  max: 5,
-  connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 10000,
-  allowExitOnIdle: true
+  max: 3,
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 15000
 });
 
 const initDB = async () => {
