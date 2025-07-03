@@ -3,14 +3,25 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 10
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false,
+    sslmode: 'require'
+  } : false,
+  max: 10,
+  connectionTimeoutMillis: 30000,
+  idleTimeoutMillis: 30000,
+  allowExitOnIdle: true
 });
 
 const initDB = async () => {
   try {
     console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
     console.log('NODE_ENV:', process.env.NODE_ENV);
+    
+    // Test connection first
+    const client = await pool.connect();
+    console.log('Database connection successful');
+    client.release();
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -72,9 +83,11 @@ const initDB = async () => {
 
     console.log('Database initialized successfully');
   } catch (error) {
-    console.error('Database initialization error:', error);
-    console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
-    console.log('Make sure DATABASE_URL environment variable is set correctly');
+    console.error('Database initialization error:', error.message);
+    console.log('DATABASE_URL format check:', process.env.DATABASE_URL?.substring(0, 20) + '...');
+    
+    // Continue without database for now - app will still start
+    console.log('App starting without database initialization - will retry on first request');
   }
 };
 
