@@ -35,7 +35,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Collaborative To-Do Backend API',
+    status: 'Running',
+    endpoints: {
+      auth: '/api/auth',
+      tasks: '/api/tasks',
+      activity: '/api/activity',
+      users: '/api/users'
+    }
+  });
+});
+
+// API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/activity', require('./routes/activity'));
