@@ -99,3 +99,12 @@ Thumbs.db
 # Database
 *.sqlite
 *.db
+
+# Deployment guides
+*DEPLOYMENT*.md
+*HOSTING*.md
+*CONFIG*.md
+*PRODUCTION*.md
+*VERCEL*.md
+*FINAL*.md
+*UPDATED*.md
