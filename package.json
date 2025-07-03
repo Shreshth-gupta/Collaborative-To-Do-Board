@@ -2,11 +2,6 @@
   "name": "collaborative-todo-board",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
-    "start": "cd backend && npm start"
-  },
-  "workspaces": [
-    "frontend",
-    "backend"
-  ]
+    "vercel-build": "cd frontend && npm install && npm run build"
+  }
 }
