@@ -1,49 +1,27 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Parse DATABASE_URL for direct connection
-const parseConnectionString = (url) => {
-  if (!url) return {};
-  const match = url.match(/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
-  if (!match) return {};
-  return {
-    user: match[1],
-    password: match[2],
-    host: match[3],
-    port: parseInt(match[4]),
-    database: match[5]
-  };
-};
-
-const dbConfig = process.env.DATABASE_URL 
-  ? parseConnectionString(process.env.DATABASE_URL)
-  : {
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME || 'postgres',
-      port: parseInt(process.env.DB_PORT) || 5432
-    };
-
+// Neon PostgreSQL configuration
 const pool = new Pool({
-  ...dbConfig,
-  ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false
-  } : false,
-  max: 3,
-  connectionTimeoutMillis: 15000,
-  idleTimeoutMillis: 15000
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 1, // Neon works best with single connections
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 5000,
+  allowExitOnIdle: true
 });
 
 const initDB = async () => {
   try {
-    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('Connecting to Neon PostgreSQL...');
     console.log('NODE_ENV:', process.env.NODE_ENV);
     
-    // Test connection first
+    // Test connection
     const client = await pool.connect();
-    console.log('Database connection successful');
+    console.log('Neon connection successful!');
     client.release();
+    
+    // Create tables with PostgreSQL syntax
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -53,12 +31,6 @@ const initDB = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_seen_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `);
-
-    // Add last_seen_activity column if it doesn't exist
-    await pool.query(`
-      ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS last_seen_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     `);
 
     await pool.query(`
@@ -106,10 +78,10 @@ const initDB = async () => {
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error.message);
-    console.log('DATABASE_URL format check:', process.env.DATABASE_URL?.substring(0, 20) + '...');
+    console.error('Full error:', error);
     
-    // Continue without database for now - app will still start
-    console.log('App starting without database initialization - will retry on first request');
+    // Don't fail the app startup - continue without DB
+    console.log('App starting without database - API calls will show errors');
   }
 };
 
