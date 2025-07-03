@@ -10,7 +10,11 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? process.env.FRONTEND_URL 
+      ? [
+          process.env.FRONTEND_URL,
+          'https://collaborative-to-do-board.vercel.app',
+          /https:\/\/collaborative-to-do-board.*\.vercel\.app$/
+        ]
       : "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true
@@ -20,7 +24,11 @@ const io = socketIo(server, {
 // CORS configuration
 if (process.env.NODE_ENV === 'production') {
   app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: [
+      process.env.FRONTEND_URL,
+      'https://collaborative-to-do-board.vercel.app',
+      /https:\/\/collaborative-to-do-board.*\.vercel\.app$/
+    ],
     credentials: true
   }));
 } else {
