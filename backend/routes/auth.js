@@ -7,6 +7,18 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    
+    // Validation
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (username.length < 3) {
+      return res.status(400).json({ error: 'Username must be at least 3 characters' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const result = await pool.query(
@@ -17,7 +29,12 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign({ id: result.rows[0].id, username }, process.env.JWT_SECRET);
     res.json({ token, user: { id: result.rows[0].id, username, email } });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Registration error:', error);
+    if (error.code === '23505') {
+      res.status(400).json({ error: 'Username or email already exists' });
+    } else {
+      res.status(500).json({ error: 'Registration failed. Please try again.' });
+    }
   }
 });
 

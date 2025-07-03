@@ -8,21 +8,37 @@ const getAuthHeaders = () => {
 export const api = {
   // Auth
   login: async (email, password) => {
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      }
+      return data;
+    } catch (error) {
+      return { error: 'Network error: ' + error.message };
+    }
   },
 
   register: async (username, email, password) => {
-    const response = await fetch(`${API_BASE}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      }
+      return data;
+    } catch (error) {
+      return { error: 'Network error: ' + error.message };
+    }
   },
 
   // Tasks
