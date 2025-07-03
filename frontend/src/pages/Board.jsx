@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TaskCard from '../components/TaskCard.jsx';
 import TaskModal from '../components/TaskModal.jsx';
 import ActivityPanel from '../components/ActivityPanel.jsx';
@@ -18,6 +18,25 @@ const Board = ({ user, onLogout }) => {
   const { showSuccess, showError, showInfo } = useNotification();
 
   const [socket, setSocket] = useState(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [tasksData, usersData, activitiesData] = await Promise.all([
+        api.getTasks(),
+        api.getUsers(),
+        api.getActivity()
+      ]);
+      setTasks(tasksData);
+      setUsers(usersData);
+      setActivities(activitiesData);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+      showError('Failed to load workspace data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showError]);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -73,26 +92,7 @@ const Board = ({ user, onLogout }) => {
       socketService.disconnect();
       setSocket(null);
     };
-  }, [showInfo]); // Added showInfo to dependencies
-
-  const loadData = async () => {
-    try {
-      setIsLoading(true);
-      const [tasksData, usersData, activitiesData] = await Promise.all([
-        api.getTasks(),
-        api.getUsers(),
-        api.getActivity()
-      ]);
-      setTasks(tasksData);
-      setUsers(usersData);
-      setActivities(activitiesData);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-      showError('Failed to load workspace data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [loadData, showInfo]);
 
   const loadTasks = async () => {
     try {
