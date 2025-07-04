@@ -24,7 +24,7 @@ The main challenge I wanted to solve was the "edit collision" problem - when two
 - bcryptjs for password hashing
 
 **Database:**
-- PostgreSQL hosted on Supabase
+- PostgreSQL (any provider)
 - Three main tables: users, tasks, activity_logs
 - Uses ENUM types for task status and priority
 
@@ -49,7 +49,7 @@ The main challenge I wanted to solve was the "edit collision" problem - when two
 
 ### Prerequisites
 - Node.js (v16 or higher)
-- PostgreSQL database (I use Supabase but any Postgres works)
+- PostgreSQL database (any provider works)
 - Git
 
 ### Backend Setup
@@ -85,7 +85,7 @@ The main challenge I wanted to solve was the "edit collision" problem - when two
    ```
 
    **How to get these values:**
-   - `DATABASE_URL`: Get from your PostgreSQL provider (Supabase, Railway, etc.)
+   - `DATABASE_URL`: Get from your PostgreSQL provider (Railway, Render, Neon, etc.)
    - `JWT_SECRET`: Generate with `openssl rand -hex 64` or use any long random string
    - `PORT`: 5000 is fine for local development
    - `FRONTEND_URL`: Your React app URL (usually http://localhost:3000)
@@ -94,11 +94,11 @@ The main challenge I wanted to solve was the "edit collision" problem - when two
    
    The app automatically creates tables on first run, but you need a PostgreSQL database first:
    
-   **Option A: Using Supabase (Recommended)**
-   - Go to [supabase.com](https://supabase.com)
-   - Create new project
-   - Go to Settings > Database
-   - Copy the connection string
+   **Option A: Cloud PostgreSQL (Recommended)**
+   - **Railway**: Go to railway.app, create PostgreSQL service
+   - **Render**: Go to render.com, create PostgreSQL database
+   - **Neon**: Go to neon.tech, create serverless PostgreSQL
+   - Copy the connection string from your provider
    
    **Option B: Local PostgreSQL**
    ```bash
