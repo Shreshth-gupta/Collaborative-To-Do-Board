@@ -12,13 +12,14 @@ const TaskCard = ({ task, onEdit, onDelete, onSmartAssign, users }) => {
     e.target.classList.remove('dragging');
   };
 
+  // flip animation for fun
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
-    setTimeout(() => setIsFlipped(false), 2000);
+    setTimeout(() => setIsFlipped(false), 2000); // auto flip back
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'
     });

@@ -1,11 +1,11 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Neon PostgreSQL configuration
+// db setup for neon
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  max: 1, 
+  max: 1, // keep it simple
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 5000,
   allowExitOnIdle: true
@@ -13,12 +13,12 @@ const pool = new Pool({
 
 const initDB = async () => {
   try {
-    console.log('Connecting to Neon PostgreSQL...');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('connecting to db...');
+    console.log('env:', process.env.NODE_ENV);
     
-    // Test connection
+    // test if db works
     const client = await pool.connect();
-    console.log('Neon connection successful!');
+    console.log('db connected!');
     client.release();
     
     // Create tables with PostgreSQL syntax
@@ -80,8 +80,8 @@ const initDB = async () => {
     console.error('Database initialization error:', error.message);
     console.error('Full error:', error);
     
-    // if db fail to connect, we can still run the app without db
-    console.log('App starting without database - API calls will show errors');
+    // app can run without db but will be broken
+    console.log('starting without db - expect errors');
   }
 };
 

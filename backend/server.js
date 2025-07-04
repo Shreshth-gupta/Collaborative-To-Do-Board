@@ -5,6 +5,8 @@ const cors = require('cors');
 const { initDB } = require('./database');
 require('dotenv').config();
 
+// TODO: maybe add rate limiting later
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -67,14 +69,15 @@ app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/activity', require('./routes/activity'));
 app.use('/api/users', require('./routes/users'));
 
-// Socket.IO for real-time updates
+// real-time stuff
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('new user:', socket.id);
   
   socket.on('join-board', () => {
     socket.join('board');
   });
   
+  // task events
   socket.on('task-updated', (data) => {
     socket.to('board').emit('task-updated', data);
   });
@@ -83,16 +86,16 @@ io.on('connection', (socket) => {
     socket.to('board').emit('task-created', data);
   });
   
-  socket.on('task-deleted', (data) => {
-    socket.to('board').emit('task-deleted', data);
+  socket.on('task-deleted', (taskData) => {
+    socket.to('board').emit('task-deleted', taskData);
   });
   
-  socket.on('activity-logged', (data) => {
-    socket.to('board').emit('activity-logged', data);
+  socket.on('activity-logged', (activityData) => {
+    socket.to('board').emit('activity-logged', activityData);
   });
   
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('user left:', socket.id);
   });
 });
 

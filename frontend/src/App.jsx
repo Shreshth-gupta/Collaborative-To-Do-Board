@@ -5,6 +5,8 @@ import Board from './pages/Board.jsx';
 import { NotificationProvider } from './contexts/NotificationContext.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 
+// had to add this after getting too many crashes
+
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -63,21 +65,19 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set page title
     document.title = 'Collaborative To-Do Board';
     
-    // Simulate app initialization
-    const initializeApp = async () => {
+    const initApp = async () => {
       try {
         const token = localStorage.getItem('token');
         const userData = localStorage.getItem('user');
         
         if (token && userData) {
-          // Validate token is still valid
           setUser(JSON.parse(userData));
         }
-      } catch (error) {
-        console.error('App initialization error:', error);
+      } catch (err) {
+        console.error('init failed:', err);
+        // cleanup if something went wrong
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       } finally {
@@ -85,7 +85,7 @@ const App = () => {
       }
     };
 
-    initializeApp();
+    initApp();
   }, []);
 
   const handleLogin = (userData) => {

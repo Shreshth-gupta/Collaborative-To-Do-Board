@@ -3,6 +3,7 @@ const { pool } = require('../database');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
+// helper to log what users do
 const logActivity = async (userId, action, taskId, details) => {
   await pool.query(
     'INSERT INTO activity_logs (user_id, action, task_id, details) VALUES ($1, $2, $3, $4)',
@@ -29,13 +30,13 @@ router.post('/', auth, async (req, res) => {
   try {
     const { title, description, priority, assigned_user_id } = req.body;
     
-    // Validate unique title
-    const existing = await pool.query('SELECT id FROM tasks WHERE title = $1', [title]);
-    if (existing.rows.length) {
+    // check if title already exists
+    const existingTask = await pool.query('SELECT id FROM tasks WHERE title = $1', [title]);
+    if (existingTask.rows.length) {
       return res.status(400).json({ error: 'Task title must be unique' });
     }
     
-    // Validate title not matching column names
+    // can't use column names as titles (learned this the hard way)
     if (['Todo', 'In Progress', 'Done'].includes(title)) {
       return res.status(400).json({ error: 'Task title cannot match column names' });
     }
@@ -66,7 +67,7 @@ router.put('/:id', auth, async (req, res) => {
     const { title, description, status, priority, assigned_user_id, version } = req.body;
     const taskId = req.params.id;
     
-    // Get current task data for conflict detection and activity logging
+    // grab current task first
     const current = await pool.query('SELECT * FROM tasks WHERE id = $1', [taskId]);
     if (!current.rows.length) {
       return res.status(404).json({ error: 'Task not found' });
@@ -74,7 +75,7 @@ router.put('/:id', auth, async (req, res) => {
     
     const currentTask = current.rows[0];
     
-    // Check version for conflict detection
+    // version check to prevent conflicts
     if (currentTask.version !== version) {
       return res.status(409).json({ 
         error: 'Conflict detected', 
@@ -100,7 +101,7 @@ router.put('/:id', auth, async (req, res) => {
       'UPDATE tasks SET title = $1, description = $2, status = $3, priority = $4, assigned_user_id = $5, version = version + 1, updated_at = CURRENT_TIMESTAMP WHERE id = $6',
       [title, description, status, priority, assigned_user_id, taskId]
     );
-    // Determine action type based on what changed
+    // figure out what kind of change this is
     let actionType = 'update';
     const details = { title, status };
     

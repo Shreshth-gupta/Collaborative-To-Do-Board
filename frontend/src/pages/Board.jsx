@@ -22,16 +22,16 @@ const Board = ({ user, onLogout }) => {
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [tasksData, usersData, activitiesData] = await Promise.all([
+      const [tasks, users, activities] = await Promise.all([
         api.getTasks(),
         api.getUsers(),
         api.getActivity()
       ]);
-      setTasks(tasksData);
-      setUsers(usersData);
-      setActivities(activitiesData);
-    } catch (error) {
-      console.error('Failed to load data:', error);
+      setTasks(tasks);
+      setUsers(users);
+      setActivities(activities);
+    } catch (err) {
+      console.error('data load failed:', err);
       showError('Failed to load workspace data');
     } finally {
       setIsLoading(false);
@@ -42,28 +42,28 @@ const Board = ({ user, onLogout }) => {
     const initializeApp = async () => {
       await loadData();
       
-      // Initialize socket connection 
+      // setup socket stuff
       try {
-        const socketConnection = socketService.connect();
-        setSocket(socketConnection);
+        const sock = socketService.connect();
+        setSocket(sock);
         
-        if (socketConnection && typeof socketConnection.on === 'function') {
-          socketConnection.on('task-created', (task) => {
+        if (sock && typeof sock.on === 'function') {
+          sock.on('task-created', (task) => {
             setTasks(prev => [...prev, task]);
             loadActivities();
           });
           
-          socketConnection.on('task-updated', (task) => {
+          sock.on('task-updated', (task) => {
             setTasks(prev => prev.map(t => t.id === task.id ? task : t));
             loadActivities();
           });
           
-          socketConnection.on('task-deleted', (data) => {
+          sock.on('task-deleted', (data) => {
             setTasks(prev => prev.filter(t => t.id !== data.id));
             loadActivities();
           });
           
-          socketConnection.on('activity-logged', () => {
+          sock.on('activity-logged', () => {
             loadActivities();
           });
           

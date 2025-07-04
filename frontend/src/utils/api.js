@@ -1,52 +1,53 @@
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+// auth header helper
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const api = {
-  // Auth
+  // auth stuff
   login: async (email, password) => {
     try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await response.json();
-      if (!response.ok) {
-        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: data.error || `HTTP ${res.status}: ${res.statusText}` };
       }
       return data;
-    } catch (error) {
-      return { error: 'Network error: ' + error.message };
+    } catch (err) {
+      return { error: 'Network error: ' + err.message };
     }
   },
 
   register: async (username, email, password) => {
     try {
-      const response = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
       });
-      const data = await response.json();
-      if (!response.ok) {
-        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: data.error || `HTTP ${res.status}: ${res.statusText}` };
       }
       return data;
-    } catch (error) {
-      return { error: 'Network error: ' + error.message };
+    } catch (err) {
+      return { error: 'Network error: ' + err.message };
     }
   },
 
-  // Tasks
+  // task operations
   getTasks: async () => {
-    const response = await fetch(`${API_BASE}/tasks`, {
+    const res = await fetch(`${API_BASE}/tasks`, {
       headers: getAuthHeaders()
     });
-    return response.json();
+    return res.json();
   },
 
   createTask: async (task) => {
