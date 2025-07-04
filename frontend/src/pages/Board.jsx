@@ -42,7 +42,7 @@ const Board = ({ user, onLogout }) => {
     const initializeApp = async () => {
       await loadData();
       
-      // Initialize socket connection with retry logic
+      // Initialize socket connection 
       try {
         const socketConnection = socketService.connect();
         setSocket(socketConnection);

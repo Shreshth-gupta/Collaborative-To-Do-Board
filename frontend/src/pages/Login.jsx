@@ -30,7 +30,7 @@ const Login = ({ onLogin, switchToRegister }) => {
   return (
     <div className="auth-container">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Welcome Back</h2>
+        <h2>Hello And Welcome</h2>
         <p style={{textAlign: 'center', color: '#666', marginBottom: '30px'}}>Sign in to your account</p>
         
         {error && <div className="error-message">{error}</div>}

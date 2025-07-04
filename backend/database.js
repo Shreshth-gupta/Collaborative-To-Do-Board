@@ -5,7 +5,7 @@ require('dotenv').config();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  max: 1, // Neon works best with single connections
+  max: 1, 
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 5000,
   allowExitOnIdle: true
@@ -80,7 +80,7 @@ const initDB = async () => {
     console.error('Database initialization error:', error.message);
     console.error('Full error:', error);
     
-    // Don't fail the app startup - continue without DB
+    // if db fail to connect, we can still run the app without db
     console.log('App starting without database - API calls will show errors');
   }
 };
