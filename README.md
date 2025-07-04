@@ -353,7 +353,3 @@ CREATE TABLE activity_logs (
 - Check browser console for frontend errors
 - Use PostgreSQL logs for database issues
 - Test with multiple browser tabs for real-time features
-
-## License
-
-MIT License - feel free to use this for your own projects!
