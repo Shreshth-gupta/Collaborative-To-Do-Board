@@ -69,13 +69,27 @@ const TaskModal = ({ task, users, onSave, onClose, isConflict, conflictData, onU
     if (isConflict && selectedVersion) {
       setLoading(true);
       let finalData;
+      
+      console.log('Resolving conflict with:', { selectedVersion, conflictData });
+      
       if (selectedVersion === 'current') {
-        finalData = { ...conflictData.current, version: conflictData.currentVersion };
+        finalData = { 
+          ...conflictData.current, 
+          version: conflictData.currentVersion 
+        };
       } else if (selectedVersion === 'yours') {
-        finalData = { ...formData, version: conflictData.currentVersion };
+        finalData = { 
+          ...formData, 
+          version: conflictData.currentVersion 
+        };
       } else if (selectedVersion === 'merge') {
-        finalData = { ...formData, version: conflictData.currentVersion };
+        finalData = { 
+          ...formData, 
+          version: conflictData.currentVersion 
+        };
       }
+      
+      console.log('Final data for conflict resolution:', finalData);
       await onSave(finalData, task?.id);
       setLoading(false);
       return;

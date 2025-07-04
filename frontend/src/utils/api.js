@@ -51,29 +51,64 @@ export const api = {
   },
 
   createTask: async (task) => {
-    const response = await fetch(`${API_BASE}/tasks`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(task)
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(task)
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      }
+      
+      return data;
+    } catch (err) {
+      return { error: 'Network error: ' + err.message };
+    }
   },
 
   updateTask: async (id, task) => {
-    const response = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(task)
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(task)
+      });
+      const data = await response.json();
+      
+      // Handle conflict (409) specifically
+      if (response.status === 409) {
+        return data; // This should contain the conflict data
+      }
+      
+      if (!response.ok) {
+        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      }
+      
+      return data;
+    } catch (err) {
+      return { error: 'Network error: ' + err.message };
+    }
   },
 
   deleteTask: async (id) => {
-    const response = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/tasks/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return { error: data.error || `HTTP ${response.status}: ${response.statusText}` };
+      }
+      
+      return data;
+    } catch (err) {
+      return { error: 'Network error: ' + err.message };
+    }
   },
 
   smartAssign: async (id) => {

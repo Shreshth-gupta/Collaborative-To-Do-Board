@@ -129,8 +129,15 @@ const Board = ({ user, onLogout }) => {
   const handleSaveTask = async (taskData, taskId) => {
     try {
       if (taskId) {
-        const result = await api.updateTask(taskId, { ...taskData, version: editingTask.version });
+        // Use the version from taskData if it exists (conflict resolution), otherwise use editingTask version
+        const versionToUse = taskData.version || editingTask.version;
+        console.log('Saving task with data:', { ...taskData, version: versionToUse });
+        
+        const result = await api.updateTask(taskId, { ...taskData, version: versionToUse });
+        console.log('Update result:', result);
+        
         if (result.error === 'Conflict detected') {
+          console.log('Conflict detected, setting conflict data');
           setConflictData({ 
             current: result.currentTask, 
             yours: taskData,
@@ -138,9 +145,17 @@ const Board = ({ user, onLogout }) => {
           });
           return;
         }
+        
+        if (result.error) {
+          console.error('Update error:', result.error);
+          showError(result.error);
+          return;
+        }
+        
         setTasks(prev => prev.map(t => t.id === taskId ? result : t));
         socketService.emit('task-updated', result);
         loadActivities();
+        showSuccess('Task updated successfully!');
       } else {
         const result = await api.createTask(taskData);
         if (result.error) {
@@ -150,12 +165,14 @@ const Board = ({ user, onLogout }) => {
         setTasks(prev => [...prev, result]);
         socketService.emit('task-created', result);
         loadActivities();
+        showSuccess('Task created successfully!');
       }
       setShowModal(false);
       setEditingTask(null);
       setConflictData(null);
     } catch (error) {
       console.error('Failed to save task:', error);
+      showError('Failed to save task');
     }
   };
 
