@@ -67,7 +67,7 @@ const Board = ({ user, onLogout }) => {
             loadActivities();
           });
           
-          socketConnection.on('connect_error', (error) => {
+          sock.on('connect_error', (error) => {
             console.warn('Socket connection error:', error);
             showInfo('Real-time updates temporarily unavailable');
           });
