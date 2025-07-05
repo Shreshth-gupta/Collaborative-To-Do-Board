@@ -8,6 +8,17 @@ This is a full-stack web app that lets multiple users collaborate on tasks in re
 
 The main challenge I wanted to solve was the "edit collision" problem - when two people try to edit the same task at the same time. Most apps either lose data or create duplicates. This one actually handles it properly.
 
+## 🎥 Demo Video
+
+**Watch the full demo:** [Collaborative To-Do Board Demo](https://drive.google.com/file/d/1QTuHqj2fCT84rUfOul_iw3UFN7MewA1O/view?usp=sharing)
+
+The video demonstrates:
+- Real-time collaboration between multiple users
+- Smart Assign feature in action
+- Conflict resolution system handling simultaneous edits
+- Drag & drop functionality
+- Activity tracking and notifications
+
 ## Tech Stack
 
 **Frontend:**
